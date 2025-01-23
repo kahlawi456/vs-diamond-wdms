@@ -1,0 +1,53 @@
+.wrapper-personnel {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    min-width: 100%;
+    background: url("../../assets/homepage/bg.png")no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.links {
+    font-size: 30px;
+}
+
+.links .home{
+    margin-right: 20px;
+}
+
+.links .about{
+    margin-right: 20px;
+}
+
+.def-wrapper-personnel {
+    bottom: 0;
+    margin-bottom: 10%;
+    margin-left: 5%;
+    width: 55%;
+    max-width: 50%;
+    position: absolute;
+}
+
+.def-wrapper-personnel .def-personnel {
+    font-size: 30px;
+    font-family: "Roboto", serif;
+    color: #595757;
+    text-shadow: 1px 1.5px #aab25f;
+}
+
+.tagline-wrapper-personnel {
+    top: 0;
+    right: 0;
+    margin-top: 15%;
+    margin-right: 5%;
+    position: absolute;
+    max-width: 50%;
+}
+
+.tagline-wrapper-personnel .tagline-personnel {
+    font-size: 100px;
+    font-family: "Inter";
+    color: #BC8F37;
+    text-shadow: 3px 2px black;
+}
