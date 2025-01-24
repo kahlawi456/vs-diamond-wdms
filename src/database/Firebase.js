@@ -8,13 +8,15 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAMNwnNGwp-7h5EHT918sQ5mB4oJ8HBF8Y",
-  authDomain: "vsdiamond-database.firebaseapp.com",
-  projectId: "vsdiamond-database",
-  storageBucket: "vsdiamond-database.firebasestorage.app",
-  messagingSenderId: "52182365318",
-  appId: "1:52182365318:web:74010295228bcb7af6cd07",
-  measurementId: "G-8LTJYLRRTV"
+    apiKey: "AIzaSyAMNwnNGwp-7h5EHT918sQ5mB4oJ8HBF8Y",
+    authDomain: String(process.env.REACT_APP_FIREBASE_AUTH_DOMAIN),
+    //databaseURL will error if same as the others
+    databaseURL: "https://vsdiamond-database-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    projectId: String(process.env.REACT_APP_FIREBASE_PROJECT_ID),
+    storageBucket: String(process.env.REACT_APP_FIREBASE_STORAGE_BUCKET),
+    messagingSenderId: String(process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID),
+    appId: String(process.env.REACT_APP_FIREBASE_APP_ID),
+    measurementId: String(process.env.REACT_APP_FIREBASE_MEASUREMENT_ID)
 };
 
 // Initialize Firebase
@@ -22,4 +24,5 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
+export default app;
 export {auth} 
