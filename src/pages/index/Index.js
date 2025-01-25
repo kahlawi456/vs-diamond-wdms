@@ -100,7 +100,7 @@ const Index = () => {
                         <Link to="/Contact">CONTACT US</Link>
                     </label>
                     <label className="faqs">
-                        <Link to="/Home">FAQS</Link>
+                        <Link to="/Faqs">FAQS</Link>
                     </label>
                 </div>
             </div>
