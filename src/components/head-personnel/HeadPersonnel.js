@@ -1,3 +1,21 @@
+/*
+-------------------------------------------------------------------------------------
+Authors         : Alinsonorin, John Myl B., Awi, Joseph Kahl L., Gozon, Daniel Allan
+Date Created    : December 28, 2024
+File            : HeadPersonnel.js
+Stylesheet      : HeadPersonnel.css
+Description     : 
+    This component is added to the page to show the header of the homepage for the
+personnel. This will include the menu and etc.
+Copyright © 2025. All rights reserved.
+
+Last Modified By: Joseph Kahl L. Awi
+Last Modified On: January 24, 2025
+-------------------------------------------------------------------------------------
+*/
+
+
+
 import "./HeadPersonnel.css"
 import React from "react";
 import logo from "../../assets/head/logo.png";

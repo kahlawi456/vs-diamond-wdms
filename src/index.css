@@ -12,7 +12,7 @@ body {
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  background: url("./assets/login-register/login-register-bg.jpg")no-repeat;
+  background: url("./assets/index/index-bg.jpg")no-repeat;
   background-size: cover;
   background-position: center;
 }

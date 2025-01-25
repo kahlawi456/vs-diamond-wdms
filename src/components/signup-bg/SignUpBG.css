@@ -1,0 +1,46 @@
+.signup-bg-wrapper {
+    width: 100%;
+    height: 40%;
+    background: #BFBC8D;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.signup-bg-wrapper .back-container{
+    text-align: right;
+    width: 11%;
+    height: 10%;
+    position: absolute;
+    right: 0;
+    margin: 1% 5% 10px;
+    font-size: 20px;
+}
+
+.signup-bg-wrapper .back {
+    right: 0;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    float: right;
+    margin-right: 10px;
+    height: 100px;
+    
+}
+
+.signup-bg-wrapper .back-text {
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    right: 0;
+    float: right;
+    cursor: pointer;
+}
+
+.back-container a{
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}

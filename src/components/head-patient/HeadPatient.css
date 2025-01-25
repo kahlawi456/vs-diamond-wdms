@@ -81,6 +81,11 @@
     cursor: pointer;
 }
 
+.manage a{
+    text-decoration: none;
+    color: black;
+}
+
 .manage::hover {
     cursor: pointer;
 }

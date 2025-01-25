@@ -1,14 +1,33 @@
+/*
+-------------------------------------------------------------------------------------
+Authors         : Alinsonorin, John Myl B., Awi, Joseph Kahl L., Gozon, Daniel Allan
+Date Created    : December 28, 2024
+File            : Index.js
+Stylesheet      : Index.css
+Description     : 
+    This page shows the login and registration of the users. This will be the index
+page as the users must login to their account, and create account if they don't have
+accounts yet.
+Copyright © 2025. All rights reserved.
+
+Last Modified By: Joseph Kahl L. Awi
+Last Modified On: January 26, 2025
+-------------------------------------------------------------------------------------
+*/
+
+
+
 import React, { useState } from "react";
-import "./LoginRegister.css";
+import "./Index.css";
 import { FaUser, FaLock} from "react-icons/fa";
-import logo from "../../assets/login-register/logo.png";
-import personnel from "../../assets/login-register/personnel.png";
-import patient from "../../assets/login-register/patient.png";
+import logo from "../../assets/index/logo.png";
+import personnel from "../../assets/index/personnel.png";
+import patient from "../../assets/index/patient.png";
 import { Link } from "react-router-dom";
 import { auth } from '../../database/Firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 
-const LoginRegister = () => {
+const Index = () => {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -25,6 +44,8 @@ const LoginRegister = () => {
 
     return (
         <div className="login-wrapper">
+            <title>VSDiamond Dental Website - Login or Register</title>
+
             <div className="left-navbar">
                 <center>
                     <div className="logo-container">
@@ -63,10 +84,10 @@ const LoginRegister = () => {
                 </div>
 
                 <div className="choices">
-                        <Link to="/Personnel">
+                        <Link to="/SignUpPersonnel">
                             <img src={personnel} className="personnel"/>
                         </Link>
-                        <Link to="/SignUp">
+                        <Link to="/SignUpPatient">
                             <img src={patient} className="patient"/>
                         </Link>
                 </div>
@@ -88,4 +109,4 @@ const LoginRegister = () => {
     );
 };
 
-export default LoginRegister;
+export default Index;

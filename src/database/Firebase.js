@@ -1,3 +1,19 @@
+/*
+-------------------------------------------------------------------------------------
+Authors         : Alinsonorin, John Myl B., Awi, Joseph Kahl L., Gozon, Daniel Allan
+Date Created    : January 24, 2024
+File            : Firebase.js
+Description     : 
+    This file allows the project to connect to the VSDiamond Database on firebase.
+Copyright © 2025. All rights reserved.
+
+Last Modified By: Joseph Kahl L. Awi
+Last Modified On: January 24, 2025
+-------------------------------------------------------------------------------------
+*/
+
+
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
