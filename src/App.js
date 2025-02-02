@@ -7,7 +7,7 @@ Description     :
 Copyright © 2025. All rights reserved.
 
 Last Modified By: Joseph Kahl L. Awi
-Last Modified On: January 26, 2025
+Last Modified On: February 02, 2025
 -------------------------------------------------------------------------------------
 */
 
@@ -25,6 +25,7 @@ import HomePatient from "./pages/home-patient/HomePatient";
 import SignUpPatient from './pages/signup-patient/SignUpPatient';
 import SignUpPersonnel from './pages/signup-personnel/SignUpPersonnel.js';
 import AppointmentPatient from './pages/appointment-patient/AppointmentPatient.js';
+import Homepage from './pages/homepage/Homepage.js';
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<NoPage />}/>
-          <Route index element={<Index />}/>
+          <Route index element={<Homepage />}/>
           <Route path="/faqs" element={<Faqs />}/>
           <Route path="/about" element={<About />}/>
           <Route path="/contact" element={<Contact />}/>
@@ -43,6 +44,7 @@ function App() {
           <Route path="/signupPatient" element={<SignUpPatient />}/>
           <Route path="/signupPersonnel" element={<SignUpPersonnel />}/>
           <Route path="/appointmentPatient" element={<AppointmentPatient />}/>
+          <Route path="/homepage" element={<Homepage />}/>
         </Routes>
       </BrowserRouter>
     </div>
