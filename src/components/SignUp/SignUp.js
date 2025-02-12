@@ -240,26 +240,28 @@ const SignUp = () => {
                 const birthDateValue = e.target.value;
                 setBirthDate(birthDateValue);
       
-                // Calculate age 
-                
-                const calculateAge = (birthDateValue) => {
-                  if (!birthDateValue) return 0; // Return 0 if birthdate is empty or invalid
-              
-                  const today = new Date();
-                  const birthDate = new Date(birthDateValue);
-              
-                  let age = today.getFullYear() - birthDate.getFullYear();
-                  const monthDiff = today.getMonth() - birthDate.getMonth();
-                  const dayDiff = today.getDate() - birthDate.getDate();
-              
-                  // Subtract 1 year if the birthday hasn't occurred yet this year
-                  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-                      age--;
-                  }
-              
-                  return age;
-              };
-              
+                // Gets the date today and the birthdate entered by the user
+                const today = new Date();
+                const birthDate = new Date(birthDateValue);
+
+                // Check if the birthdate is in the future
+                if (birthDate > today) {
+                  alert("Birthdate cannot be in the future.");
+                  setAge(""); 
+                  return;  
+                }
+
+                 // Calculate age
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                const dayDiff = today.getDate() - birthDate.getDate();
+
+                // Checks if the birthday hasn't occurred yet this year, subtract 1 from age
+                if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+                  age--;
+                }
+
+                setAge(age);  // Set the calculated age
               }}   
             />
 
