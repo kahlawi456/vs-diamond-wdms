@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import app from "../../firebaseConfig";
+import { getDatabase, ref, set, push } from "firebase/database";
 
 const SignUp = () => {
+
 
   // State variable for user role
   const [selectUser, setSelectUser] = useState(null);
@@ -101,8 +104,35 @@ const SignUp = () => {
 
     // Displays all the information entered by the user
     alert(`Registration successful for ${selectUser}`);
+
+    // Firebase Realtime Database
+    const saveData = async () => {
+      const db = getDatabase(app);
+      const newDocRef = push(ref(db, "users/details")); // Creates a unique user ID
+      try {
+        await set(newDocRef, {
+          firstName,
+          middleName,
+          lastName,
+          address,
+          contactNumber,
+          civilStatus,
+          birthDate,
+          age,
+          email,
+          userPassword
+        });
+        alert("Data has been saved successfully.");
+      } catch (error) {
+        alert("Error saving data: " + error.message);
+      }
+    };
+  
+    saveData();
+
     alert(`Name: ${firstName} ${middleName} ${lastName}, Address: ${address}, Contact Number: ${contactNumber}, Civil Status: ${civilStatus}, Birthdate: ${birthDate}, Age: ${age}, Email: ${email}, Password: ${userPassword}, Confirm Password: ${userConfirmPassword}`);
   };
+
 
   return (
 
