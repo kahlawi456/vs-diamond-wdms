@@ -17,6 +17,8 @@ import Index from './pages/index/Index';
 import NoPage from './pages/NoPage/NoPage';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
+import SignUpPatient from './components/SignUp/SignUpPatient';
+import SignUpPersonnel from './components/SignUp/SignUpPersonnel';
 
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
           <Route path='*' element={<NoPage />}/>
           <Route path='SignIn' element={<SignIn />}/>
           <Route path='SignUp' element={<SignUp />}/>
+          <Route path='SignUpPatient' element={<SignUpPatient />}/>
+          <Route path='SignUpPersonnel' element={<SignUpPersonnel />}/>
         </Routes>
       </BrowserRouter>
     </div>
