@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import app from "../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, push } from "firebase/database";
 
 const SignUpPatient = () => {
@@ -16,6 +17,8 @@ const SignUpPatient = () => {
   const [civilStatus, setCivilStatus] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [age, setAge] = useState("");
+
+   const navigate = useNavigate();
 
 
   // Function to HandleSubmit from the form data
@@ -86,8 +89,8 @@ const SignUpPatient = () => {
       return;
     }
 
-    // Displays all the information entered by the user
     alert(`Registration successful for Patient`);
+    
 
     // Firebase Realtime Database
     const saveData = async () => {
@@ -106,7 +109,7 @@ const SignUpPatient = () => {
           birthDate,
           age
         });
-        alert("Data has been saved successfully.");
+        navigate("/dashboardPatient");
       } catch (error) {
         alert("Error saving data: " + error.message);
       }

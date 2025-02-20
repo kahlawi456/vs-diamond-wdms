@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import app from "../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSignIn = async () => {
     const db = getDatabase(app);
@@ -44,7 +46,11 @@ const SignIn = () => {
       // Handle Sign In Results
       if (user) {
         alert(`Sign in successful as ${userType}!`);
-        // Redirect or handle based on userType if needed
+        if (userType === "Patient") {
+          navigate("/dashboardPatient");
+        } else if (userType === "Personnel") {
+          navigate("/dashboardPersonnel");
+        }
       } else {
         alert("Invalid email or password.");
       }

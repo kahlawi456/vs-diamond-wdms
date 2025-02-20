@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import app from "../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, push } from "firebase/database";
 
 const SignUpPersonnel = () => {
@@ -9,6 +10,8 @@ const SignUpPersonnel = () => {
   const [personnelAuthStep, setPersonnelAuthStep] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+   const navigate = useNavigate();
 
   // State variables for each input field
   const [email, setEmail] = useState("");
@@ -103,6 +106,7 @@ const SignUpPersonnel = () => {
 
     // Displays all the information entered by the user
     alert(`Registration successful for Personnel`);
+    
 
     // Firebase Realtime Database
     const saveData = async () => {
@@ -121,7 +125,7 @@ const SignUpPersonnel = () => {
           birthDate,
           age
         });
-        alert("Data has been saved successfully.");
+        navigate("/dashboardPersonnel");
       } catch (error) {
         alert("Error saving data: " + error.message);
       }
