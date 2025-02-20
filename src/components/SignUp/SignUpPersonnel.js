@@ -11,6 +11,9 @@ const SignUpPersonnel = () => {
   const [password, setPassword] = useState("");
 
   // State variables for each input field
+  const [email, setEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [userConfirmPassword, setUserConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,9 +22,7 @@ const SignUpPersonnel = () => {
   const [civilStatus, setCivilStatus] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [age, setAge] = useState("");
-  const [email, setEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
-  const [userConfirmPassword, setUserConfirmPassword] = useState("");
+  
 
   const handlePersonnelAuth = () => {
     // Checks if the username and password entered by the user matches the predefined username and password
@@ -39,15 +40,16 @@ const SignUpPersonnel = () => {
     const missingFields = []; // Array to store missing input fields
 
     // Checking for any missing fields
+    if (!email) missingFields.push("Email");
+    if (!userPassword) missingFields.push("Password");
+    if (!userConfirmPassword) missingFields.push("Confirm Password");
     if (!firstName) missingFields.push("First Name");
     if (!lastName) missingFields.push("Last Name");
     if (!address) missingFields.push("Address");
     if (!contactNumber) missingFields.push("Contact Number");
     if (!birthDate) missingFields.push("Birthdate");
     if (!age) missingFields.push("Age");
-    if (!email) missingFields.push("Email");
-    if (!userPassword) missingFields.push("Password");
-    if (!userConfirmPassword) missingFields.push("Confirm Password");
+    
 
     // Display the missing fields as an alert
     if (missingFields.length > 0) {
@@ -108,6 +110,8 @@ const SignUpPersonnel = () => {
       const newDocRef = push(ref(db, "users/Personnel")); // Creates a unique user ID
       try {
         await set(newDocRef, {
+          email,
+          userPassword,
           firstName,
           middleName,
           lastName,
@@ -115,9 +119,7 @@ const SignUpPersonnel = () => {
           contactNumber,
           civilStatus,
           birthDate,
-          age,
-          email,
-          userPassword
+          age
         });
         alert("Data has been saved successfully.");
       } catch (error) {
