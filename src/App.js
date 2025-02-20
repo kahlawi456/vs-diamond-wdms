@@ -12,18 +12,30 @@ Last Modified On: February 11, 2025
 -------------------------------------------------------------------------------------
 */
 
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import NoPage from "./pages/no-page/NoPage";
-import Index from "./pages/index/Index";
+import Index from './pages/index/Index';
+import NoPage from './pages/NoPage/NoPage';
+import SignIn from './components/SignIn/SignIn';
+import SignUp from './components/SignUp/SignUp';
+import SignUpPatient from './components/SignUp/SignUpPatient';
+import SignUpPersonnel from './components/SignUp/SignUpPersonnel';
+import dashboardPatient from './pages/dashboard/dashboardPatient';
+import dashboardPersonnel from './pages/dashboard/dashboardPersonnel';
+
 
 function App() {
   return (
     <div>
       <BrowserRouter>
         <Routes>
+          <Route path='/' element={<Index />}/>
           <Route path='*' element={<NoPage />}/>
-          <Route index element={<Index />}/>
+          <Route path='SignIn' element={<SignIn />}/>
+          <Route path='SignUp' element={<SignUp />}/>
+          <Route path='SignUpPatient' element={<SignUpPatient />}/>
+          <Route path='SignUpPersonnel' element={<SignUpPersonnel />}/>
+          <Route path='dashboardPatient' element={<dashboardPatient />}/>
+          <Route path='dashboardPersonnel' element={<dashboardPersonnel />}/>
         </Routes>
       </BrowserRouter>
     </div>
