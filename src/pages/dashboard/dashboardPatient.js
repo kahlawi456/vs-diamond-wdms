@@ -1,21 +1,15 @@
-import React, { use } from "react";
+import React from "react";
 
-const dashboardPatient = () => {
+const DashboardPatient = () => {
 
-
+const title = "Welcome to the Dashboard Patient";
   return (
 
     <div>
-      <title>VSDiamond Dental Clinic </title>
-    
-      
-
-      <button>View Our Services</button> {/*view services button  */}
-      <button>Dental Portfolio</button> {/*view dental portfolio button  */}
-
-  
+      <h1>{title}</h1>
+      <p>This is the new page you are redirected to after signing in.</p>
     </div>
   )
 }
 
-export default dashboardPatient;
+export default DashboardPatient;

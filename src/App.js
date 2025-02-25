@@ -15,12 +15,12 @@ Last Modified On: February 11, 2025
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Index from './pages/index/Index';
 import NoPage from './pages/NoPage/NoPage';
-import SignIn from './components/SignIn/SignIn';
-import SignUp from './components/SignUp/SignUp';
-import SignUpPatient from './components/SignUp/SignUpPatient';
-import SignUpPersonnel from './components/SignUp/SignUpPersonnel';
-import dashboardPatient from './pages/dashboard/dashboardPatient';
-import dashboardPersonnel from './pages/dashboard/dashboardPersonnel';
+import SignIn from './pages/SignIn/SignIn';
+import SignUp from './pages/SignUp/SignUp';
+import SignUpPatient from './pages/SignUp/SignUpPatient';
+import SignUpPersonnel from './pages/SignUp/SignUpPersonnel';
+import DashboardPatient from './pages/dashboard/DashboardPatient';
+import DashboardPersonnel from './pages/dashboard/DashboardPersonnel';
 
 
 function App() {
@@ -34,8 +34,8 @@ function App() {
           <Route path='SignUp' element={<SignUp />}/>
           <Route path='SignUpPatient' element={<SignUpPatient />}/>
           <Route path='SignUpPersonnel' element={<SignUpPersonnel />}/>
-          <Route path='dashboardPatient' element={<dashboardPatient />}/>
-          <Route path='dashboardPersonnel' element={<dashboardPersonnel />}/>
+          <Route path='DashboardPatient' element={<DashboardPatient />}/>
+          <Route path='DashboardPersonnel' element={<DashboardPersonnel />}/>
         </Routes>
       </BrowserRouter>
     </div>

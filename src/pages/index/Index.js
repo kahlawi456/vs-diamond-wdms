@@ -1,6 +1,6 @@
 import React, { use } from "react";
-import SignUp from "../../components/SignUp/SignUp";
-import SignIn from "../../components/SignIn/SignIn";
+import SignUp from "../SignUp/SignUp";
+import SignIn from "../SignIn/SignIn";
 import { useState } from "react";
 
 const Index = () => {
@@ -30,7 +30,7 @@ const Index = () => {
       <button>Dental Portfolio</button> {/*view dental portfolio button  */}
 
       {/*signin button to appear the signin form*/}
-      <button onClick={handleSignInClick}>Signin</button>
+      <button onClick={handleSignInClick}>Sign In</button>
       {showSignIn && <SignIn />}
 
       {/*signup button to appear the signup form*/}
