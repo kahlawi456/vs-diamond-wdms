@@ -19,9 +19,10 @@ import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import SignUpPatient from './components/SignUp/SignUpPatient';
 import SignUpPersonnel from './components/SignUp/SignUpPersonnel';
-import dashboardPatient from './pages/dashboard/dashboardPatient';
-import dashboardPersonnel from './pages/dashboard/dashboardPersonnel';
-
+import DashboardPatient from './pages/dashboard/dashboardPatient';
+import DashboardPersonnel from './pages/dashboard/dashboardPersonnel';
+import PatientAppointmentBooking from './components/PatientAppointmentBooking/PatientAppointmentBooking';
+import PatientInsuranceForm from './components/PatientInsuranceForm/PatientInsuranceForm';
 
 function App() {
   return (
@@ -34,8 +35,10 @@ function App() {
           <Route path='SignUp' element={<SignUp />}/>
           <Route path='SignUpPatient' element={<SignUpPatient />}/>
           <Route path='SignUpPersonnel' element={<SignUpPersonnel />}/>
-          <Route path='dashboardPatient' element={<dashboardPatient />}/>
-          <Route path='dashboardPersonnel' element={<dashboardPersonnel />}/>
+          <Route path='DashboardPatient' element={<DashboardPatient />}/>
+          <Route path='DashboardPersonnel' element={<DashboardPersonnel />}/>
+          <Route path='PatientAppointmentBooking' element={<PatientAppointmentBooking />}/>
+          <Route path='PatientInsuranceForm' element={<PatientInsuranceForm />}/>
         </Routes>
       </BrowserRouter>
     </div>

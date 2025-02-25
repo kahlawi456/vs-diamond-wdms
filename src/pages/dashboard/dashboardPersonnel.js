@@ -1,16 +1,11 @@
-import React, { use } from "react";
+import React from "react";
 
-const dashboardPersonnel = () => {
-    
-    
-    return (
-    
+const DashboardPersonnel = () => {
+  return (
     <div>
-    <h1>Welcome to Personnel Dashboard </h1>;
+      <h1>Welcome to Personnel Dashboard</h1>
     </div>
+  );
+};
 
-)
-  };
-  
-  export default dashboardPersonnel;
-  
+export default DashboardPersonnel;

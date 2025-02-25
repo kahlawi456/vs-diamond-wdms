@@ -1,21 +1,23 @@
-import React, { use } from "react";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth';
 
-const dashboardPatient = () => {
+const DashboardPatient = () => {
+  const navigate = useNavigate();
+  const auth = getAuth();
 
+  const handleLogout = () => {
+    signOut(auth).then(() => {
+      navigate('/', { replace: true });
+    });
+  };
 
   return (
-
     <div>
-      <title>VSDiamond Dental Clinic | Index</title>
-    
-      
-
-      <button>View Our Services</button> {/*view services button  */}
-      <button>Dental Portfolio</button> {/*view dental portfolio button  */}
-
-  
+      <Link to="/PatientAppointmentBooking"><button>Book Appointment</button></Link>
+      <button onClick={handleLogout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 
-export default dashboardPatient;
+export default DashboardPatient;

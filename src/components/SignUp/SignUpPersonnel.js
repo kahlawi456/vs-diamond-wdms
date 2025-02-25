@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import app from "../../firebaseConfig";
+import app from "../../backend/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, push } from "firebase/database";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignUpPersonnel = () => {
-
-
   // State variables for personnel authentication
   const [personnelAuthStep, setPersonnelAuthStep] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const auth = getAuth();
 
   // State variables for each input field
   const [email, setEmail] = useState("");
@@ -25,11 +25,10 @@ const SignUpPersonnel = () => {
   const [civilStatus, setCivilStatus] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [age, setAge] = useState("");
-  
 
   const handlePersonnelAuth = () => {
     // Checks if the username and password entered by the user matches the predefined username and password
-    if(username === "personnel" && password === "123456"){
+    if (username === "personnel" && password === "123456") {
       setPersonnelAuthStep(true);
     } else {
       alert(`Invalid credentials.`);
@@ -37,103 +36,61 @@ const SignUpPersonnel = () => {
   };
 
   // Function to HandleSubmit from the form data
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Prevents the page from reloading
 
-    const missingFields = []; // Array to store missing input fields
-
-    // Checking for any missing fields
-    if (!email) missingFields.push("Email");
-    if (!userPassword) missingFields.push("Password");
-    if (!userConfirmPassword) missingFields.push("Confirm Password");
-    if (!firstName) missingFields.push("First Name");
-    if (!lastName) missingFields.push("Last Name");
-    if (!address) missingFields.push("Address");
-    if (!contactNumber) missingFields.push("Contact Number");
-    if (!birthDate) missingFields.push("Birthdate");
-    if (!age) missingFields.push("Age");
-    
-
-    // Display the missing fields as an alert
-    if (missingFields.length > 0) {
-      alert(`Please fill in the following fields: ${missingFields.join(", ")}`);
-      return;
-    }
-
-    // Regex pattern for a strong password (must contain atleast 1 lowercase, 1 uppercase, 1 number, 1 special character)
-    /*
-      (?=.*[a-z]) – At least one lowercase letter.
-      (?=.*[A-Z]) – At least one uppercase letter.
-      (?=.*\d) – At least one number.
-      (?=.*[!@#$%^&*]) – At least one special character (like !, @, #, $, %, ^, &, or *).
-    */
-
-    if(contactNumber.toString().length !== 11) {
+    if (contactNumber.toString().length !== 11) {
       alert(`Invalid contact number. Must not be less than or greater than 11 digits. Contact number only contains ${contactNumber.toString().length} digits.`);
       return;
     }
 
-    // Regex pattern for the email (must contain '@' and the domain must contain text and '.')
-    /*
-       ^[a-zA-Z0-9._%+-]+ - ensures that local part before the '@', can contain etters, numbers, dots, underscores, percent signs, plus signs, and hyphens.
-       [a-zA-Z0-9.-]+ - ensures that the domain after '@' can contain letters, numbers, dots, and hyphens.
-       \.[a-zA-Z]{2,}$ - ensures that the domain ends with a valid top-level domain (TLD), with atleast two letters. (Ex. .com, .edu.ph, .org)
-    */
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    // Checks if the email entered by the user matches the regex pattern for the email
     if (!emailPattern.test(email)) {
-      alert("Invalid email. Please enter a Gmail or Yahoo email.");
+      alert("Invalid email. Please enter a valid email.");
       return;
     }
 
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
-    // Checks if the password length is less than 8 characters
     if (userPassword.toString().length < 8) {
       alert("Password must be at least 8 characters long.");
       return;
     }
-    // Checks if the password entered by the user meets the regex pattern for a strong password
     if (!passwordPattern.test(userPassword)) {
       alert("Password must contain an uppercase letter, a lowercase letter, a number, and a special character.");
       return;
     }
 
-    // Checking if both password and confirm password match
     if (userPassword !== userConfirmPassword) {
       alert("Passwords do not match.");
       return;
     }
 
-    // Displays all the information entered by the user
-    alert(`Registration successful for Personnel`);
-    
+    try {
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, userPassword);
+      const user = userCredential.user;
 
-    // Firebase Realtime Database
-    const saveData = async () => {
+      // Save user data in Firebase Realtime Database
       const db = getDatabase(app);
-      const newDocRef = push(ref(db, "users/Personnel")); // Creates a unique user ID
-      try {
-        await set(newDocRef, {
-          email,
-          userPassword,
-          firstName,
-          middleName,
-          lastName,
-          address,
-          contactNumber,
-          civilStatus,
-          birthDate,
-          age
-        });
-        navigate("/dashboardPersonnel");
-      } catch (error) {
-        alert("Error saving data: " + error.message);
-      }
-    };
-  
-    saveData(); // Calls the function to save the data to the database
-  };
+      const newDocRef = push(ref(db, "users/Personnel"));
+      await set(newDocRef, {
+        email,
+        firstName,
+        middleName,
+        lastName,
+        address,
+        contactNumber,
+        civilStatus,
+        birthDate,
+        age
+      });
 
+      alert(`Registration successful for Personnel`);
+      navigate("/dashboardPersonnel");
+    } catch (error) {
+      alert("Error creating account: " + error.message);
+    }
+  };
 
   return (
     <div>
@@ -146,23 +103,26 @@ const SignUpPersonnel = () => {
             <label><h5>Username: personnel</h5></label>
             <label><h5>Password: 123456</h5></label>
           </div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button onClick={handlePersonnelAuth}>Submit</button>
+          <form onSubmit={handlePersonnelAuth}>
+            <label>Username:</label>
+            <input
+              type="text"
+              value={username}
+              required
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <label>Password:</label>
+            <input
+              type="password"
+              value={password}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="submit">Submit</button>
+          </form>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          {/*</div>First Name, Middle Name, Last Name input fields*/}
           <h3>Signup as Personnel</h3>
           <div>
             <label>First Name:</label>
@@ -170,11 +130,11 @@ const SignUpPersonnel = () => {
               type="text"
               value={firstName}
               maxLength="50"
+              required
               onChange={(e) => {
                 const value = e.target.value;
-                // Checks if the first name entered by the user is valid (no numbers, special characters)
                 if (/^[A-Za-z\s]*$/.test(value)) {
-                  setFirstName(value.replace(/\b\w/g, (char) => char.toUpperCase())); // Converts each first letter to Capital
+                  setFirstName(value.replace(/\b\w/g, (char) => char.toUpperCase()));
                 }
               }}
             />
@@ -186,9 +146,8 @@ const SignUpPersonnel = () => {
               maxLength="50"
               onChange={(e) => {
                 const value = e.target.value;
-                // Checks if the first name entered by the user is valid (no numbers, special characters)
                 if (/^[A-Za-z\s]*$/.test(value)) {
-                  setMiddleName(value.replace(/\b\w/g, (char) => char.toUpperCase())); // Converts each first letter to Capital
+                  setMiddleName(value.replace(/\b\w/g, (char) => char.toUpperCase()));
                 }
               }}
             />
@@ -198,23 +157,23 @@ const SignUpPersonnel = () => {
               type="text"
               value={lastName}
               maxLength="50"
+              required
               onChange={(e) => {
                 const value = e.target.value;
-                // Checks if the first name entered by the user is valid (no numbers, special characters)
                 if (/^[A-Za-z\s]*$/.test(value)) {
-                  setLastName(value.replace(/\b\w/g, (char) => char.toUpperCase())); // Converts each first letter to Capital
+                  setLastName(value.replace(/\b\w/g, (char) => char.toUpperCase()));
                 }
               }}
             />
           </div>
 
-          {/* Address and Contact Number input fields */}
           <div>
             <label>Address:</label>
             <input
               type="text"
               value={address}
               maxLength="150"
+              required
               onChange={(e) => setAddress(e.target.value)}
             />
 
@@ -223,17 +182,16 @@ const SignUpPersonnel = () => {
               type="text"
               value={contactNumber}
               maxLength="11"
+              required
               onChange={(e) => {
                 const value = e.target.value;
-                // Checks if the contact number entered by the user only contains digits from 0-9
                 if (/^\d*$/.test(value)) {
-                  setContactNumber(value); 
+                  setContactNumber(value);
                 }
               }}
             />
           </div>
 
-          {/* Civil Status, Birthdate, and Age input fields */}
           <div>
             <label>Civil Status:</label>
             <select
@@ -251,33 +209,30 @@ const SignUpPersonnel = () => {
             <input
               type="date"
               value={birthDate}
+              required
               onChange={(e) => {
                 const birthDateValue = e.target.value;
                 setBirthDate(birthDateValue);
-      
-                // Gets the date today and the birthdate entered by the user
+
                 const today = new Date();
                 const birthDate = new Date(birthDateValue);
 
-                // Check if the birthdate is in the future
                 if (birthDate > today) {
                   alert("Birthdate cannot be in the future.");
-                  setAge(""); 
-                  return;  
+                  setAge("");
+                  return;
                 }
 
-                 // Calculate age
                 let age = today.getFullYear() - birthDate.getFullYear();
                 const monthDiff = today.getMonth() - birthDate.getMonth();
                 const dayDiff = today.getDate() - birthDate.getDate();
 
-                // Checks if the birthday hasn't occurred yet this year, subtract 1 from age
                 if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
                   age--;
                 }
 
-                setAge(age);  // Set the calculated age
-              }}   
+                setAge(age);
+              }}
             />
 
             <label>Age:</label>
@@ -286,28 +241,28 @@ const SignUpPersonnel = () => {
               value={age}
               min="1"
               maxLength="3"
+              required
               onChange={(e) => {
                 const value = e.target.value;
-                if(/^\d*$/.test(value)) {
+                if (/^\d*$/.test(value)) {
                   setAge(value);
                 }
               }}
             />
           </div>
 
-          {/* Email input field */}
           <div>
             <label>Email:</label>
             <input
               type="email"
               value={email}
               maxLength="254"
+              required
               onChange={(e) => setEmail(e.target.value)}
               style={{ width: "300px" }}
             />
           </div>
 
-          {/* Password and Confirm Password input fields */}
           <div>
             <label>Password:</label>
             <input
@@ -315,6 +270,7 @@ const SignUpPersonnel = () => {
               value={userPassword}
               min="8"
               maxLength="32"
+              required
               onChange={(e) => setUserPassword(e.target.value)}
             />
 
@@ -324,15 +280,15 @@ const SignUpPersonnel = () => {
               value={userConfirmPassword}
               min="8"
               maxLength="32"
+              required
               onChange={(e) => setUserConfirmPassword(e.target.value)}
             />
           </div>
 
-          {/* Submit button */}
           <button type="submit">Submit</button>
         </form>
       )}
-    </div> 
+    </div>
   );
 };
 
