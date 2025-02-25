@@ -6,7 +6,7 @@ const dashboardPatient = () => {
   return (
 
     <div>
-      <title>VSDiamond Dental Clinic | Index</title>
+      <title>VSDiamond Dental Clinic </title>
     
       
 
