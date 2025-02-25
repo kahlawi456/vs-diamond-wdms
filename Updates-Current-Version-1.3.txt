@@ -1,0 +1,47 @@
+Version 1.1
+
+-------------------------UPDATES-----------------------------------
+
+*Created two components (signin, signup)
+*Imported the signin and signup form in the index.js
+*Created two buttons for the view services and dental portfolion in the index.js
+*Created two input fields for the email and password for the signin.js
+*Created the signup form (first name, middle name, last name, address, contact number, civil status, birthdate, age, email, password)
+*Added parameters to the sign up form
+*For the name input field, it will only allow letters in the alphabet
+*For the contact number, it will only allow digits from 0-9
+*For  the email address, the system will check the following: @, gmail/yahoo, .com
+*For the password, it should contain alteast 1 lowercase, 1 uppercase, 1 number, 1 special character
+
+Version 1.2
+
+-------------------------UPDATES-----------------------------------
+
+*Signin fields (email, password). 
+*Signup (personnel): enter credentials for authentication.
+*Signup (personnel): Input fields for the credentials (username, password0). 
+*Note: naa koy ge predefined nga username ug password sa code (user: personnel, pass: 123456)
+*Signup (personnel): If sakto ang ge input sa personnel kay mo proceed sa signup form.
+*Signup (personnel): Signup form will appear nya ang mga requireds fields ang following:
+firstname, lastname, address, contact number, birthdate, age, email, password, confirm
+password.
+*Note: Name field only allows letters in the alphabet and will capital every first letter of each word | Address allows any type of characters/special characters/numbers | Contact number only allows digits from 0-9 | Birthdate kay ni gamit rako sa type:date for the input field | 
+Age only allows digits from 0-9 | Email checks for the following: '@', 'gmail/yahoo', '.com' |
+Password will required atleast 1 of the following: lowercase, uppercase, number, special character.
+
+If walay ge input sa any of the required fields kay mo prompt ug alert ang system. 
+
+Version 1.3
+
+-------------------------UPDATES-----------------------------------
+
+*Added a maximum length for some fields
+*First name max length 50 (common practices)
+*Last name max length 50 (common practices)
+*Middle name max length 50 (common practices)
+*Address max length 150 (common practices)
+*Contact number max length 11 (+64 Philippine Phone Number Length)
+*Age min length is 1 and max length is 3 (Since the oldest recorded human lived up to 122)
+*Email max length is 254 according to the Internet standards (RFC 5321 and RFC 5322)
+*Password min length is 8 and max is 32 (Good for clinic website, doesn't require the ultra-high security found in banking or sensitive government systems)
+
