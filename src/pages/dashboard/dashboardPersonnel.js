@@ -1,6 +1,6 @@
 import React, { use } from "react";
 
-const dashboardPersonnel = () => {
+const DashboardPersonnel = () => {
     
     
     return (
@@ -12,5 +12,5 @@ const dashboardPersonnel = () => {
 )
   };
   
-  export default dashboardPersonnel;
+  export default DashboardPersonnel;
   
