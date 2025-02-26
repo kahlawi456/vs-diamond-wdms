@@ -1,12 +1,25 @@
-import React, { use } from "react";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth';
 
 const DashboardPersonnel = () => {
+
+  const navigate = useNavigate();
+  const auth = getAuth();
+  
+  const handleLogout = () => {
+    signOut(auth).then(() => {
+      navigate('/', { replace: true });
+    });
+  };
+
     
     
     return (
     
     <div>
-    <h1>Welcome to Personnel Dashboard </h1>;
+        <Link to="/ManageAppointment"><button>Manage Appointment</button></Link>
+        <button onClick={handleLogout}>Logout</button>
     </div>
 
 )

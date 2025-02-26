@@ -1,15 +1,23 @@
-import React from "react";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signOut } from 'firebase/auth';
 
 const DashboardPatient = () => {
+  const navigate = useNavigate();
+  const auth = getAuth();
 
-const title = "Welcome to the Dashboard Patient";
+  const handleLogout = () => {
+    signOut(auth).then(() => {
+      navigate('/', { replace: true });
+    });
+  };
+
   return (
-
     <div>
-      <h1>{title}</h1>
-      <p>This is the new page you are redirected to after signing in.</p>
+      <Link to="/PatientAppointmentBooking"><button>Book Appointment</button></Link>
+      <button onClick={handleLogout}>Logout</button>
     </div>
-  )
-}
+  );
+};
 
 export default DashboardPatient;

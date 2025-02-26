@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import app from "../../firebaseConfig";
+import app from "../../backend/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, push } from "firebase/database";
 import SignUpForm from "../../components/SignUpForm";

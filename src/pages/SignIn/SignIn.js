@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import app from "../../firebaseConfig";
+import app from "../../backend/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 
@@ -47,9 +47,9 @@ const SignIn = () => {
       if (user) {
         alert(`Sign in successful as ${userType}!`);
         if (userType === "Patient") {
-          navigate("/dashboardPatient");
+          navigate("/DashboardPatient");
         } else if (userType === "Personnel") {
-          navigate("/dashboardPersonnel");
+          navigate("/DashboardPersonnel");
         }
       } else {
         alert("Invalid email or password.");
@@ -62,7 +62,6 @@ const SignIn = () => {
 
   return (
     <div>
-      
       <h3>Sign In</h3>
       <input
         type="text"
