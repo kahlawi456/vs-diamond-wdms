@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react"; // Import React and hooks for state and effect management
-import Calendar from "react-calendar"; // Import Calendar component for date selection
-import "react-calendar/dist/Calendar.css"; // Import default styles for the Calendar component
-import { db } from "../../backend/firebaseConfig"; // Import the Firebase database
-import { ref, push, onValue, remove, update } from "firebase/database";   // Import Firebase database functions
+import React, { useState, useEffect } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { db, auth } from "../../backend/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+import { ref, push, onValue, remove, update } from "firebase/database";
 import PatientInsuranceForm from "../AppointmentSystem/PatientInsuranceForm";
-import Modal from "react-modal";  // Import Modal component for modals
+import Modal from "react-modal";
 
-Modal.setAppElement("#root");   // Set the root element for the Modal 
+Modal.setAppElement("#root");
 
 const PatientAppointmentBooking = () => {
-
   // State variables 
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,6 @@ const PatientAppointmentBooking = () => {
 
   // List of available services with their estimated times (in minutes)
   const servicesList = [
-    
     { name: "Dental Bonding", time: 45 },
     { name: "Dental Crowns", time: 75 },
     { name: "Teeth Whitening", time: 45 },
@@ -37,30 +36,46 @@ const PatientAppointmentBooking = () => {
     { name: "Dentures", time: 60 },
   ];
 
-  // Clinic office hours
-  const officeStartTime = 9 * 60; // 9:00 AM in minutes
-  const officeEndTime = 17 * 60; // 5:00 PM in minutes
+  // Clinic office hours (in minutes)
+  const officeStartTime = 9 * 60; // 9:00 AM
+  const officeEndTime = 17 * 60;  // 5:00 PM
 
-  // Fetch the current user from localStorage on component mount
+  // Helper: fetch appointments for the selected date
+  const fetchAppointmentsForDate = () => {
+    const formattedDate = new Date(
+      selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const appointmentsRef = ref(db, `appointments/${formattedDate}`);
+    onValue(
+      appointmentsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        const fetched = data
+          ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+          : [];
+        setAppointments(fetched);
+        console.log("Fetched appointments for", formattedDate, fetched);
+      },
+      { onlyOnce: true }
+    );
+  };
+
+  // Listen for auth state changes
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
-    setLoading(false);  
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user ? user : null);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
-  // Fetch appointments for the selected date
+  // Fetch appointments when selectedDate changes
   useEffect(() => {
     if (!selectedDate) return;
-    const formattedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
-    const appointmentsRef = ref(db, `appointments/${formattedDate}`);
-
-    onValue(appointmentsRef, (snapshot) => {
-      const data = snapshot.val();
-      setAppointments(data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : []);
-    });
-  }, [selectedDate]); // Re-run the effect when the selected date changes
+    fetchAppointmentsForDate();
+  }, [selectedDate]);
 
   // Handle date change
   const handleDateChange = (date) => setSelectedDate(date);
@@ -82,20 +97,30 @@ const PatientAppointmentBooking = () => {
     }, 0);
   };
 
-  // Generate available time slots based on total duration and existing appointments
+  // Format time in minutes to HH:MM AM/PM format
+  const formatTime = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = mins < 10 ? `0${mins}` : mins;
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
+
+  // Generate available time slots based on current appointments
   const generateTimeSlots = () => {
     const totalDuration = calculateTotalDuration();
     const slots = [];
     let lastEndTime = officeStartTime;
 
-    // Sort appointments by start time
+    // Sort appointments by start time (converted to minutes)
     const sortedAppointments = [...appointments].sort((a, b) => {
       const aStart = parseInt(a.time.split(":")[0]) * 60 + parseInt(a.time.split(":")[1]);
       const bStart = parseInt(b.time.split(":")[0]) * 60 + parseInt(b.time.split(":")[1]);
       return aStart - bStart;
     });
 
-    // Find the last end time of existing appointments
+    // Update lastEndTime based on existing appointments
     sortedAppointments.forEach((appointment) => {
       const appointmentStart = parseInt(appointment.time.split(":")[0]) * 60 + parseInt(appointment.time.split(":")[1]);
       const appointmentEnd = appointmentStart + appointment.duration;
@@ -103,16 +128,18 @@ const PatientAppointmentBooking = () => {
         lastEndTime = appointmentEnd;
       }
     });
+    console.log("Calculated lastEndTime:", lastEndTime);
 
+    // Create slots from lastEndTime until officeEndTime
     for (let start = lastEndTime; start + totalDuration <= officeEndTime; start += 30) {
       const end = start + totalDuration;
       const slot = {
-        start: start,
-        end: end,
+        start,
+        end,
         display: `${formatTime(start)} - ${formatTime(end)}`,
       };
 
-      // Check if the slot overlaps with any existing appointments
+      // Check if the slot overlaps any existing appointment
       const overlaps = appointments.some((appointment) => {
         const appointmentStart = parseInt(appointment.time.split(":")[0]) * 60 + parseInt(appointment.time.split(":")[1]);
         const appointmentEnd = appointmentStart + appointment.duration;
@@ -123,61 +150,46 @@ const PatientAppointmentBooking = () => {
         slots.push(slot);
       }
     }
-
+    console.log("Generated time slots:", slots);
     return slots;
-  };
-
-  // Format time in minutes to HH:MM AM/PM format
-  const formatTime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 || 12;
-    const formattedMinutes = mins < 10 ? `0${mins}` : mins;
-    return `${formattedHours}:${formattedMinutes} ${ampm}`;
   };
 
   // Handle appointment submission
   const handleAppointmentSubmit = async (insuranceData = null) => {
-    // Check if loading is true
     if (loading) {
       alert("Please wait while we verify your login status.");
       return;
     }
-    // Check if date and services are selected
     if (!selectedDate || selectedServices.length === 0) {
       setBookingStatus("Please select a date and at least one service.");
       return;
     }
-    // Check if user is logged in
-    if (!currentUser) {
+    if (!currentUser || !currentUser.email) {
       alert("You need to be logged in to book an appointment.");
       return;
     }
-    // Check if insurance information is asked
-    if (!insuranceAsked) {
-      setShowInsuranceModal(true);
-      return;
-    }
 
-    // Calculate total duration
+    // Note: We now always want to ask for insurance on each new booking.
+    // So we assume that when the Book Appointment button is clicked,
+    // insuranceAsked is reset (see below).
+
     const totalDuration = calculateTotalDuration();
-
-    // Check if there are available time slots
     const availableSlots = generateTimeSlots();
     if (availableSlots.length === 0) {
       setBookingStatus("No available time slots for the selected date.");
       return;
     }
 
-    // Prepare appointment data
-    const userId = currentUser.email;
-    const formattedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
-    const appointmentRef = ref(db, `appointments/${formattedDate}`);
+    // Use the first available slot
     const selectedTime = availableSlots[0].start;
+    const formattedDate = new Date(
+      selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
 
     const appointmentData = {
-      userId,
+      userId: currentUser.email,
       date: formattedDate,
       services: selectedServices,
       time: `${Math.floor(selectedTime / 60)}:${selectedTime % 60 === 0 ? "00" : selectedTime % 60}`,
@@ -186,74 +198,97 @@ const PatientAppointmentBooking = () => {
       status: "Pending",
       insurance: hasInsurance ? "Yes" : "No",
     };
-    
-
-    // Add insurance details if available
     if (insuranceData) {
-      appointmentData.insuranceDetails = insuranceData;
+      try {
+        // Sanitize insurance data to remove non-serializable properties
+        appointmentData.insuranceDetails = JSON.parse(JSON.stringify(insuranceData));
+      } catch (err) {
+        console.error("Failed to sanitize insurance data:", err);
+      }
     }
-
-    // Push appointment data to Firebase
+    console.log("Booking appointment with data:", appointmentData);
+    const appointmentRef = ref(db, `appointments/${formattedDate}`);
     try {
       await push(appointmentRef, appointmentData);
       setBookingStatus("Appointment booked successfully!");
+      console.log("Appointment booked successfully!");
       setSelectedServices([]);
+      // Reset insurance flags for the next booking attempt
       setInsuranceAsked(false);
       setShowInsuranceForm(false);
+      // Re-fetch appointments to update local state with new appointment times
+      fetchAppointmentsForDate();
       setTimeout(() => setBookingStatus(""), 3000);
     } catch (error) {
+      console.error("Error booking appointment:", error);
       setBookingStatus("Error booking appointment.");
     }
   };
 
-  // Handle appointment cancellation
+  // Handle appointment cancellation and adjust subsequent times
   const handleCancelAppointment = async (id) => {
     if (!window.confirm("Do you want to cancel your appointment?")) return;
-  
-    const formattedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+
+    const formattedDate = new Date(
+      selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
     const appointmentRef = ref(db, `appointments/${formattedDate}/${id}`);
-  
+
     try {
       await remove(appointmentRef);
-  
-      // Fetch remaining appointments after deletion
+      console.log("Appointment removed:", id);
+
+      // After removal, update times for remaining appointments
       const updatedRef = ref(db, `appointments/${formattedDate}`);
-      onValue(updatedRef, async (snapshot) => {
-        const data = snapshot.val();
-        let updatedAppointments = data ? Object.entries(data).map(([id, value]) => ({ id, ...value })) : [];
-  
-        // Sort appointments by start time
-        updatedAppointments.sort((a, b) => {
-          const aStart = parseInt(a.time.split(":")[0]) * 60 + parseInt(a.time.split(":")[1]);
-          const bStart = parseInt(b.time.split(":")[0]) * 60 + parseInt(b.time.split(":")[1]);
-          return aStart - bStart;
-        });
-  
-        let lastEndTime = officeStartTime;
-        
-        // Adjust the start and end times for remaining appointments
-        for (const appointment of updatedAppointments) {
-          const newStartTime = lastEndTime;
-          const newEndTime = newStartTime + appointment.duration;
-          
-          await update(ref(db, `appointments/${formattedDate}/${appointment.id}`), {
-            time: `${Math.floor(newStartTime / 60)}:${newStartTime % 60 === 0 ? "00" : newStartTime % 60}`,
-            endTime: `${Math.floor(newEndTime / 60)}:${newEndTime % 60 === 0 ? "00" : newEndTime % 60}`,
+      onValue(
+        updatedRef,
+        async (snapshot) => {
+          const data = snapshot.val();
+          let updatedAppointments = data
+            ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+            : [];
+
+          // Sort appointments by current start time
+          updatedAppointments.sort((a, b) => {
+            const aStart = parseInt(a.time.split(":")[0]) * 60 + parseInt(a.time.split(":")[1]);
+            const bStart = parseInt(b.time.split(":")[0]) * 60 + parseInt(b.time.split(":")[1]);
+            return aStart - bStart;
           });
-  
-          lastEndTime = newEndTime;
-        }
-      }, { onlyOnce: true });
-  
+
+          let lastEndTime = officeStartTime;
+          // Update each appointment's start and end times sequentially
+          for (const appointment of updatedAppointments) {
+            const newStartTime = lastEndTime;
+            const newEndTime = newStartTime + appointment.duration;
+            const newTimeStr = `${Math.floor(newStartTime / 60)}:${newStartTime % 60 === 0 ? "00" : newStartTime % 60}`;
+            const newEndTimeStr = `${Math.floor(newEndTime / 60)}:${newEndTime % 60 === 0 ? "00" : newEndTime % 60}`;
+            await update(ref(db, `appointments/${formattedDate}/${appointment.id}`), {
+              time: newTimeStr,
+              endTime: newEndTimeStr,
+            });
+            // Update the local appointment object
+            appointment.time = newTimeStr;
+            appointment.endTime = newEndTimeStr;
+            lastEndTime = newEndTime;
+          }
+          // Re-fetch appointments to ensure local state is current
+          fetchAppointmentsForDate();
+          console.log("Updated appointments after cancellation:", updatedAppointments);
+        },
+        { onlyOnce: true }
+      );
+
       setBookingStatus("Appointment canceled and times adjusted.");
+      console.log("Cancellation complete and times adjusted.");
     } catch (error) {
+      console.error("Error canceling appointment:", error);
       setBookingStatus("Error canceling appointment.");
     }
   };
-  
-  
 
-  // Handle insurance confirmation
+  // Insurance handling functions
   const handleInsuranceConfirm = (hasInsurance) => {
     setHasInsurance(hasInsurance);
     setInsuranceAsked(true);
@@ -265,7 +300,6 @@ const PatientAppointmentBooking = () => {
     }
   };
 
-  // Handle insurance form submission
   const handleInsuranceFormSubmit = async (formData) => {
     if (formData) {
       setHasInsurance(true);
@@ -274,9 +308,12 @@ const PatientAppointmentBooking = () => {
     }
     setInsuranceAsked(true);
     setShowInsuranceForm(false);
-
     if (editingAppointmentId) {
-      const formattedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+      const formattedDate = new Date(
+        selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .split("T")[0];
       const appointmentRef = ref(db, `appointments/${formattedDate}/${editingAppointmentId}`);
       await update(appointmentRef, { insuranceDetails: formData });
       setEditingAppointmentId(null);
@@ -286,7 +323,6 @@ const PatientAppointmentBooking = () => {
     }
   };
 
-  // Handle closing the insurance form
   const handleInsuranceClose = () => {
     setHasInsurance(false);
     setInsuranceAsked(true);
@@ -294,7 +330,6 @@ const PatientAppointmentBooking = () => {
     handleAppointmentSubmit();
   };
 
-  // Handle viewing insurance details
   const handleViewInsuranceDetails = (appointment) => {
     setInsuranceDetails(appointment.insuranceDetails);
     setEditingAppointmentId(appointment.id);
@@ -323,36 +358,106 @@ const PatientAppointmentBooking = () => {
             </ul>
           )}
         </div>
-
-        <button onClick={handleAppointmentSubmit} style={{ marginTop: "10px", width: "100%" }}>
+        {/* Reset insuranceAsked and show modal on each new booking attempt */}
+        <button
+          onClick={() => {
+            setInsuranceAsked(false);
+            setShowInsuranceModal(true);
+          }}
+          style={{ marginTop: "10px", width: "100%" }}
+        >
           Book Appointment
         </button>
 
-        {bookingStatus && <p style={{ textAlign: "center", color: bookingStatus.includes("success") ? "green" : "red" }}>{bookingStatus}</p>}
+        {bookingStatus && (
+          <p style={{ textAlign: "center", color: bookingStatus.includes("success") ? "green" : "red" }}>
+            {bookingStatus}
+          </p>
+        )}
       </div>
 
       <div style={{ width: "400px" }}>
         <h2>Appointments for {selectedDate.toDateString()}</h2>
         <ul style={{ padding: "0", listStyle: "none" }}>
-          {appointments.length > 0 && appointments.map((appointment) => (
-            <li key={appointment.id} style={{ padding: "10px", border: "1px solid #000", marginBottom: "5px", position: "relative", backgroundColor: appointment.userId === currentUser?.email ? "#e0e0e0" : "transparent" }}>
-              {appointment.userId === currentUser?.email && (
-                <>
-                  <button onClick={() => handleCancelAppointment(appointment.id)} style={{ position: "absolute", top: "5px", right: "5px", background: "red", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", fontSize: "12px" }}>Cancel</button>
-                  {appointment.insuranceDetails && (
-                    <button onClick={() => handleViewInsuranceDetails(appointment)} style={{ position: "absolute", top: "5px", right: "70px", background: "blue", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", fontSize: "12px" }}>View Insurance Details</button>
-                  )}
-                </>
-              )}
-              <div>
-                <b>{appointment.date}</b>
-                <br /> {appointment.services.join(", ")}
-                <br /> <b>Time: {formatTime(parseInt(appointment.time.split(":")[0]) * 60 + parseInt(appointment.time.split(":")[1]))} - {formatTime(parseInt(appointment.time.split(":")[0]) * 60 + parseInt(appointment.time.split(":")[1]) + appointment.duration)}</b>
-                <br /> <b>Status: <span style={{ color: appointment.status === "Confirmed" ? "green" : "orange" }}>{appointment.status}</span></b>
-                <br /> <b>Patient: {appointment.userId}</b>
-              </div>
-            </li>
-          ))}
+          {appointments.length > 0 &&
+            appointments.map((appointment) => (
+              <li
+                key={appointment.id}
+                style={{
+                  padding: "10px",
+                  border: "1px solid #000",
+                  marginBottom: "5px",
+                  position: "relative",
+                  backgroundColor: appointment.userId === currentUser?.email ? "#e0e0e0" : "transparent",
+                }}
+              >
+                {appointment.userId === currentUser?.email && (
+                  <>
+                    <button
+                      onClick={() => handleCancelAppointment(appointment.id)}
+                      style={{
+                        position: "absolute",
+                        top: "5px",
+                        right: "5px",
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        padding: "5px 10px",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    {appointment.insuranceDetails && (
+                      <button
+                        onClick={() => handleViewInsuranceDetails(appointment)}
+                        style={{
+                          position: "absolute",
+                          top: "5px",
+                          right: "70px",
+                          background: "blue",
+                          color: "white",
+                          border: "none",
+                          padding: "5px 10px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                        }}
+                      >
+                        View Insurance Details
+                      </button>
+                    )}
+                  </>
+                )}
+                <div>
+                  <b>{appointment.date}</b>
+                  <br /> {appointment.services.join(", ")}
+                  <br />
+                  <b>
+                    Time:{" "}
+                    {formatTime(
+                      parseInt(appointment.time.split(":")[0]) * 60 +
+                        parseInt(appointment.time.split(":")[1])
+                    )}{" "}
+                    -{" "}
+                    {formatTime(
+                      parseInt(appointment.time.split(":")[0]) * 60 +
+                        parseInt(appointment.time.split(":")[1]) +
+                        appointment.duration
+                    )}
+                  </b>
+                  <br />
+                  <b>
+                    Status:{" "}
+                    <span style={{ color: appointment.status === "Confirmed" ? "green" : "orange" }}>
+                      {appointment.status}
+                    </span>
+                  </b>
+                  <br />
+                  <b>Patient: {appointment.userId}</b>
+                </div>
+              </li>
+            ))}
         </ul>
       </div>
 
@@ -361,22 +466,22 @@ const PatientAppointmentBooking = () => {
         onRequestClose={() => setShowInsuranceModal(false)}
         contentLabel="Insurance Modal"
         style={{
-          overlay: {
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          },
+          overlay: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
           content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
           },
         }}
       >
         <h2>Do you have insurance?</h2>
         <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-          <button onClick={() => handleInsuranceConfirm(true)} style={{ marginRight: "10px" }}>Yes</button>
+          <button onClick={() => handleInsuranceConfirm(true)} style={{ marginRight: "10px" }}>
+            Yes
+          </button>
           <button onClick={() => handleInsuranceConfirm(false)}>No</button>
         </div>
       </Modal>
@@ -386,16 +491,14 @@ const PatientAppointmentBooking = () => {
         onRequestClose={handleInsuranceClose}
         contentLabel="Insurance Form Modal"
         style={{
-          overlay: {
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          },
+          overlay: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
           content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
           },
         }}
       >
